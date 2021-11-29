@@ -25,6 +25,9 @@ module.exports = {
         url: process.env.INFURA_URL,
       }
     }
+  },
+  mocha: {
+    timeout: 60000
   }
   
 };
