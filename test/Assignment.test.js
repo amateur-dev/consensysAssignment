@@ -67,7 +67,7 @@ describe("Basic Swap", function () {
     const balance = await DAIContract.connect(mockedSigner).balanceOf(DAIHolder);
     await DAIContract.connect(mockedSigner).approve(AssignmentContract.address, balance);
     const WETHContract = new ethers.Contract(WETH9Address, ERC20ABI, mockedSigner);
-    const wethBal_1 = WETHContract.balanceOf(mockedSigner.address);
+    const wethBal_1 = await WETHContract.balanceOf(mockedSigner.address);
     const latest_blockTimeStamp = (await ethers.provider.getBlock()).timestamp;
     const param_timestamp = (BigNumber.from(latest_blockTimeStamp)).add(1000);
     const tx = await AssignmentContract.connect(mockedSigner).simpleSwap(
@@ -77,7 +77,8 @@ describe("Basic Swap", function () {
       param_timestamp,
       BigNumber.from("0")
     )
-    console.log(tx);
+    const wethBal_2 = await WETHContract.balanceOf(mockedSigner.address);
+    expect(wethBal_2.gt(wethBal_1)).to.be.true;
     
   });
 });
