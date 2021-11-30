@@ -35,29 +35,29 @@ describe("Basic Swap", function () {
     sushiFactory = new ethers.Contract(sushiswapFactoryAddress, V2FactoryABI, signers[0]);
   })
 
-  // it("getting quote", async function () {
-  //   const daiWethUniPairContractAddress = await uniFactory.getPair(DAIAddress, WETH9Address);
-  //   const daiWethSushiPairContractAddress = await sushiFactory.getPair(DAIAddress, WETH9Address);
-  //   const uniPairContract = new ethers.Contract(daiWethUniPairContractAddress, pairContractABI, signers[0]);
-  //   const sushiPairContract = new ethers.Contract(daiWethSushiPairContractAddress, pairContractABI, signers[0]);
-  //   const uniReserves = await uniPairContract.getReserves();
-  //   const sushiReserves = await sushiPairContract.getReserves();
-  //   const uniRouter = new ethers.Contract(uniswapV2RouterAddress, routerContractABI, signers[0]);
-  //   const sushiRouter = new ethers.Contract(sushiswapV2RouterAddress, routerContractABI, signers[0]);
-  //   const uniPrice = await uniRouter.quote(tokenInQty, uniReserves._reserve0, uniReserves._reserve1);
-  //   const sushiPrice = await sushiRouter.quote(tokenInQty, sushiReserves._reserve0, sushiReserves._reserve1);
-  //   const quote = await AssignmentContract.callStatic.getQuote(
-  //     DAIAddress, WETH9Address, tokenInQty);
-  //   if (uniPrice.gt(sushiPrice)) {
-  //     expect(quote.isUniBetter).to.be.true;
-  //     expect((quote.tokenOutQty).eq(uniPrice)).to.be.true;
-  //   } else {
-  //     expect(quote.isUniBetter).to.be.false;
-  //     expect((quote.tokenOutQty).eq(sushiPrice)).to.be.true;
-  //   }
-  // });
+  it("getting quote", async function () {
+    const daiWethUniPairContractAddress = await uniFactory.getPair(DAIAddress, WETH9Address);
+    const daiWethSushiPairContractAddress = await sushiFactory.getPair(DAIAddress, WETH9Address);
+    const uniPairContract = new ethers.Contract(daiWethUniPairContractAddress, pairContractABI, signers[0]);
+    const sushiPairContract = new ethers.Contract(daiWethSushiPairContractAddress, pairContractABI, signers[0]);
+    const uniReserves = await uniPairContract.getReserves();
+    const sushiReserves = await sushiPairContract.getReserves();
+    const uniRouter = new ethers.Contract(uniswapV2RouterAddress, routerContractABI, signers[0]);
+    const sushiRouter = new ethers.Contract(sushiswapV2RouterAddress, routerContractABI, signers[0]);
+    const uniPrice = await uniRouter.quote(tokenInQty, uniReserves._reserve0, uniReserves._reserve1);
+    const sushiPrice = await sushiRouter.quote(tokenInQty, sushiReserves._reserve0, sushiReserves._reserve1);
+    const quote = await AssignmentContract.callStatic.getQuote(
+      DAIAddress, WETH9Address, tokenInQty);
+    if (uniPrice.gt(sushiPrice)) {
+      expect(quote.isUniBetter).to.be.true;
+      expect((quote.tokenOutQty).eq(uniPrice)).to.be.true;
+    } else {
+      expect(quote.isUniBetter).to.be.false;
+      expect((quote.tokenOutQty).eq(sushiPrice)).to.be.true;
+    }
+  });
 
-  it("simple swap", async function () {
+  it("simple swap tokens with tokens", async function () {
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
       params: [DAIHolder],
@@ -81,9 +81,7 @@ describe("Basic Swap", function () {
     } catch (error) {
       if ((String(error)).includes("INSUFFICIENT_OUTPUT_AMOUNT")) throw Error ("increase slippage, current slippage too low")
     }
-    
     const wethBal_2 = await WETHContract.balanceOf(mockedSigner.address);
     expect(wethBal_2.gt(wethBal_1)).to.be.true;
-    
   });
 });
