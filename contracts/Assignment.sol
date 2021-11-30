@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
-
 pragma solidity = 0.8.4;
+
+import "./interfaces/IUniswapV2Router02.sol";
+import "@uniswap/v2-core/contracts/interfaces/IERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 interface V2Factory {
     function getPair(address tokenA, address tokenB) external view returns (address pair);
@@ -10,15 +14,14 @@ interface pairContract {
     function getReserves() external view returns (uint112 _reserve0, uint112 _reserve1, uint32 _blockTimestampLast);
 }
 
-import "./interfaces/IUniswapV2Router02.sol";
-import "@uniswap/v2-core/contracts/interfaces/IERC20.sol";
-import "hardhat/console.sol";
+
 
 // create your own interface for the router for the swap
 // swap has to be done using ETH and any other token
 
 
 contract Assignment  {
+    using SafeMath for uint;
 
     V2Factory public constant sushiswapFactory = V2Factory(0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac);
     V2Factory public constant uniswapV2Factory = V2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
@@ -49,8 +52,10 @@ contract Assignment  {
     }
 
 
-    function simpleSwap(address tokenIn, address tokenOut, uint tokenInQty, uint deadline, uint minimumTokenOutQty) external {
+    function swapExactTokensForTokens(address tokenIn, address tokenOut, uint tokenInQty, uint deadline, uint maxSlipageinBps) external {
         (uint tokenOutQty, bool isUniBetter) = getQuote(tokenIn, tokenOut, tokenInQty);
+        // use safeMath conservative
+        uint minimumTokenOutQty = (tokenOutQty.mul(10000 - maxSlipageinBps)).div(10000);
         IERC20(tokenIn).transferFrom(msg.sender, address(this), tokenInQty);
         address[] memory path = new address[](2);
         path[0] = tokenIn;

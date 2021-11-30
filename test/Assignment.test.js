@@ -70,13 +70,18 @@ describe("Basic Swap", function () {
     const wethBal_1 = await WETHContract.balanceOf(mockedSigner.address);
     const latest_blockTimeStamp = (await ethers.provider.getBlock()).timestamp;
     const param_timestamp = (BigNumber.from(latest_blockTimeStamp)).add(1000);
-    const tx = await AssignmentContract.connect(mockedSigner).simpleSwap(
-      DAIAddress,
-      WETH9Address,
-      tokenInQty,
-      param_timestamp,
-      BigNumber.from("0")
-    )
+    try {
+      const tx = await AssignmentContract.connect(mockedSigner).swapExactTokensForTokens(
+        DAIAddress,
+        WETH9Address,
+        tokenInQty,
+        param_timestamp,
+        BigNumber.from("50")
+      )  
+    } catch (error) {
+      if ((String(error)).includes("INSUFFICIENT_OUTPUT_AMOUNT")) throw Error ("increase slippage, current slippage too low")
+    }
+    
     const wethBal_2 = await WETHContract.balanceOf(mockedSigner.address);
     expect(wethBal_2.gt(wethBal_1)).to.be.true;
     

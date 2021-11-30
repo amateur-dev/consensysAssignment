@@ -23,6 +23,7 @@ module.exports = {
     hardhat: {
       forking: {
         url: process.env.INFURA_URL,
+        blockNumber: 13713396
       }
     }
   },
